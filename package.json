@@ -1,23 +1,51 @@
 {
   "name": "mm-plugin-hello",
   "version": "0.0.1",
-  "private": true,
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "description": "Example MetaMask Agent Wallet (mm) CLI plugin",
-  "keywords": ["oclif-plugin"],
+  "license": "MIT",
+  "author": "hieu-w",
+  "homepage": "https://github.com/hieu-w/agent-wallet-plugin-template#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hieu-w/agent-wallet-plugin-template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hieu-w/agent-wallet-plugin-template/issues"
+  },
+  "keywords": [
+    "oclif-plugin",
+    "metamask",
+    "agent-wallet"
+  ],
+  "files": [
+    "dist",
+    "oclif.manifest.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
     "build": "tsc && oclif manifest",
     "clean": "rimraf dist oclif.manifest.json",
-    "prepack": "yarn build"
+    "prepack": "npm run build",
+    "type-check": "tsc --noEmit"
   },
   "oclif": {
     "bin": "mm",
     "commands": "./dist/commands"
   },
   "peerDependencies": {
-    "@metamask/agent-wallet": "^6"
+    "@metamask/agent-wallet": "^6.1.0"
   },
   "devDependencies": {
+    "@metamask/agent-wallet": "^6.1.5",
     "oclif": "^4.23.14",
     "typescript": "^5.9.3"
   },
@@ -27,36 +55,50 @@
     "capabilities": [],
     "commands": [
       {
-        "id": "hello:ping",
+        "id": "ping",
         "capabilities": [],
         "dataAccess": []
       },
       {
-        "id": "hello:balance",
-        "capabilities": ["wallet-read"],
-        "dataAccess": ["balances", "accounts"]
+        "id": "demo:balance",
+        "capabilities": [
+          "wallet-read"
+        ],
+        "dataAccess": [
+          "balances",
+          "accounts"
+        ]
       },
       {
-        "id": "hello:submit",
-        "capabilities": ["wallet-submit"],
+        "id": "demo:submit",
+        "capabilities": [
+          "wallet-submit"
+        ],
         "dataAccess": []
       },
       {
-        "id": "hello:mnemonic",
-        "capabilities": ["mnemonic-read"],
-        "dataAccess": ["mnemonic"]
+        "id": "vault:mnemonic",
+        "capabilities": [
+          "mnemonic-read"
+        ],
+        "dataAccess": [
+          "mnemonic"
+        ]
       },
       {
-        "id": "hello:config",
-        "capabilities": ["config-write"],
+        "id": "admin:config",
+        "capabilities": [
+          "config-write"
+        ],
         "dataAccess": []
       },
       {
-        "id": "hello:network",
-        "capabilities": ["network-manage"],
+        "id": "admin:network",
+        "capabilities": [
+          "network-manage"
+        ],
         "dataAccess": []
       }
     ]
-  },
-  "files": ["dist", "oclif.manifest.json"]
+  }
 }

@@ -4,7 +4,7 @@ export default class HelloNetworkCommand extends PluginCommand<{ capability: "ne
   static override requiresAuth = false;
   static override requiresInit = false;
   static override description = "Example plugin: network-manage capability (reserved for future network management)";
-  protected readonly pluginCommandId = "hello:network";
+  protected readonly pluginCommandId = "admin:network";
 
   async execute(_io: CommandIO) {
     // `network-manage` is reserved: no runtime API is gated on it yet. This command

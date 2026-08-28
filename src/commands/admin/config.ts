@@ -4,7 +4,7 @@ export default class HelloConfigCommand extends PluginCommand<{ capability: "con
   static override requiresAuth = false;
   static override requiresInit = false;
   static override description = "Example plugin: config-write capability (reserved for future config mutations)";
-  protected readonly pluginCommandId = "hello:config";
+  protected readonly pluginCommandId = "admin:config";
 
   async execute(_io: CommandIO) {
     // `config-write` is reserved: no runtime API is gated on it yet. This command

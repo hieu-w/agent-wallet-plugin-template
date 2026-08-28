@@ -1,6 +1,6 @@
 # Agent Wallet plugin template
 
-Starter for a third-party [`mm`](https://github.com/MetaMask/agentic) CLI plugin. Your package adds first-class `mm` commands (one-shot and REPL). Import only from `@metamask/agent-wallet/plugin`. Declare permissions in `package.json#mm`.
+Starter for a third-party [`mm`](https://github.com/MetaMask/agentic) CLI plugin. Your package adds first-class `mm` commands (one-shot and REPL). Import only from `@metamask/agent-wallet/plugin`. Declare permissions in `package.json#mm`. Plugin commands do not receive `session` (`cliToken`) or `mnemonicStore` (SRP); those stay host-only.
 
 ## Plugin developer guide
 
@@ -25,7 +25,7 @@ Published surface:
 | Export | Role |
 | --- | --- |
 | `PluginCommand` | Base class. Implement `execute` plus `pluginCommandId`. |
-| `PluginCommandContext` | Typed view of `this.ctx` (services the host exposes). |
+| `PluginCommandContext` | Typed view of `this.ctx` (no `session` / `cliToken` / `mnemonicStore`). |
 | `CommandIO` | How you talk to the user / stdout (`emit`, `yield`, `resolveInputs`, …). |
 | `schemaToFlags` / `schemaToArgs` + `InputFieldType` | Declare inputs once; host builds flags, positionals, and prompts. |
 | `CommandError` / `ok` / `err` | Fail a command with a code + hint. |
@@ -76,7 +76,9 @@ Set these as **static fields**. Do not override the getters or lifecycle methods
 
 Every command already has `--format`, `--json`, `--toon`, and `--verbose`. Do not redeclare them.
 
-**Sealed** (constructor throws `PLUGIN_SEALED_OVERRIDE` if you override): `run`, `runLifecycle`, `beforeExecute`, `init`, `prepareForRepl`, and the `requiresAuth` / `requiresInit` / `requiresFees` getters.
+**Sealed** (constructor throws `PLUGIN_SEALED_OVERRIDE` if you override): `run`, `runLifecycle`, `beforeExecute`, `init`, `prepareForRepl`, `withPluginIsolation`, and the `requiresAuth` / `requiresInit` / `requiresFees` getters.
+
+`this.ctx.session` and `this.ctx.mnemonicStore` are **not** available (runtime `PERMISSION_DENIED`). The host already checked login / init. The SRP is host-only; use `walletExecutor` for signing. Use `walletStateManager` for wallet state.
 
 ### Context (`this.ctx`)
 
@@ -91,13 +93,12 @@ Curated services. Capability gates apply at runtime for the sensitive ones.
 | `networkRegistry` | `wallet-read` | Supported networks cache. |
 | `feesService` | `wallet-read` | Fee quotes / cache. |
 | `swapQuoteStore` | `wallet-read` | Persisted swap quotes. |
-| `session` / `authService` | (session) | Current login / wallet mode. Prefer `dataAccess: ["session"]` if you read it. |
+| `authService` | — | Auth helpers the host already ran (`requiresAuth`). Do not use this to read `cliToken`. |
 | `walletExecutor(io, pluginCommandId)` | `wallet-submit` | Sign / submit via MetaMask policy. Still MFA-gated. Missing capability → `PERMISSION_DENIED`. |
-| `mnemonicStore` | `mnemonic-read` | Metadata only (e.g. `isEncrypted()`). Never print the secret. Missing capability → `PERMISSION_DENIED`. |
 | `logger` | — | Structured logs. Never log secrets. |
 | `args` / `flags` / `argv` | — | Parsed invocation. Prefer `io.resolveInputs` over reading flags by hand. |
 
-`config-write` and `network-manage` are reserved capabilities (declare them for consent). No mutation API is gated on them yet.
+`config-write`, `network-manage`, and `mnemonic-read` are reserved capabilities (declare them for consent). No plugin API is gated on them.
 
 ### I/O (`io`)
 
@@ -137,7 +138,7 @@ Useful field keys: `flag`, `message`, `required`, `prompt`, `index` (positional 
 
 ### Permissions (`package.json#mm`)
 
-Install-time consent is the real trust boundary. Plugins run **in-process and unsandboxed**. Runtime gates (`wallet-submit`, `mnemonic-read`) are defense-in-depth.
+Install-time consent is the real trust boundary. Plugins run **in-process and unsandboxed**. Runtime gates (`wallet-submit`) are defense-in-depth. `session` and the SRP (`mnemonicStore`) are never exposed.
 
 ```json
 {
@@ -161,7 +162,7 @@ Install-time consent is the real trust boundary. Plugins run **in-process and un
 | --- | --- |
 | `capabilities` (plugin-wide) | Keep `[]`. This list is merged into **every** command. |
 | `commands[].capabilities` | Grant only what that command needs. |
-| `commands[].dataAccess` | What you intend to read: `accounts`, `balances`, `prices`, `tokens`, `network`, `fees`, `swap-quotes`, `session`, `mnemonic`. |
+| `commands[].dataAccess` | Install-time disclosure of what you intend to read: `accounts`, `balances`, `prices`, `tokens`, `network`, `fees`, `swap-quotes`, `session`, `mnemonic`. `session` and `mnemonic` are disclosure-only — `this.ctx.session` and `this.ctx.mnemonicStore` are not provided. |
 | `commands[].targetChains` | `"any"` or a list of chain ids. |
 | `minCliVersion` | Semver range against the installed `mm`. |
 
@@ -171,7 +172,7 @@ Capabilities:
 | --- | --- |
 | `wallet-read` | Read services (wallets, accounts, prices, tokens, fees, quotes). |
 | `wallet-submit` | `ctx.walletExecutor()` — sign/submit, still policy-gated. |
-| `mnemonic-read` | `ctx.mnemonicStore` (metadata, not the secret). |
+| `mnemonic-read` | Reserved. SRP / `mnemonicStore` are host-only. |
 | `config-write` | Reserved. |
 | `network-manage` | Reserved. |
 
@@ -206,7 +207,7 @@ src/commands/
 | `ping` | none | Flat id. No auth / init. `mm ping Alice` or `--name Alice`. |
 | `demo:balance` | `wallet-read` | Topic + sub. Reads the active address and a recent tx count. |
 | `demo:submit` | `wallet-submit` | Same `demo` topic, different sub. Obtains `ctx.walletExecutor`. |
-| `vault:mnemonic` | `mnemonic-read` | Another topic. Reads mnemonic metadata only, never the secret. |
+| `vault:mnemonic` | `mnemonic-read` | Reserved; SRP is host-only. Shows how to declare the capability. |
 | `admin:config` | `config-write` | Reserved; shows how to declare the capability. |
 | `admin:network` | `network-manage` | Same `admin` topic. Reserved. |
 

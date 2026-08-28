@@ -22,7 +22,7 @@ export default class HelloPingCommand extends PluginCommand<{ message: string }>
   // Base flags (--format/--json/--toon/--verbose) are inherited from the host
   // Command base class; only declare your own here.
   static override flags = schemaToFlags(inputs);
-  protected readonly pluginCommandId = "hello:ping";
+  protected readonly pluginCommandId = "ping";
 
   async execute(io: CommandIO) {
     const { name } = await io.resolveInputs(inputs);

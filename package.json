@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Example MetaMask Agent Wallet (mm) CLI plugin",
-  "keywords": ["oclif-plugin"],
+  "keywords": [
+    "oclif-plugin"
+  ],
   "scripts": {
     "build": "tsc && oclif manifest",
     "clean": "rimraf dist oclif.manifest.json",
@@ -18,6 +20,7 @@
     "@metamask/agent-wallet": "^6"
   },
   "devDependencies": {
+    "@metamask/agent-wallet": "file:./metamask-agent-wallet-v6.1.5.tgz",
     "oclif": "^4.23.14",
     "typescript": "^5.9.3"
   },
@@ -27,36 +30,54 @@
     "capabilities": [],
     "commands": [
       {
-        "id": "hello:ping",
+        "id": "ping",
         "capabilities": [],
         "dataAccess": []
       },
       {
-        "id": "hello:balance",
-        "capabilities": ["wallet-read"],
-        "dataAccess": ["balances", "accounts"]
+        "id": "demo:balance",
+        "capabilities": [
+          "wallet-read"
+        ],
+        "dataAccess": [
+          "balances",
+          "accounts"
+        ]
       },
       {
-        "id": "hello:submit",
-        "capabilities": ["wallet-submit"],
+        "id": "demo:submit",
+        "capabilities": [
+          "wallet-submit"
+        ],
         "dataAccess": []
       },
       {
-        "id": "hello:mnemonic",
-        "capabilities": ["mnemonic-read"],
-        "dataAccess": ["mnemonic"]
+        "id": "vault:mnemonic",
+        "capabilities": [
+          "mnemonic-read"
+        ],
+        "dataAccess": [
+          "mnemonic"
+        ]
       },
       {
-        "id": "hello:config",
-        "capabilities": ["config-write"],
+        "id": "admin:config",
+        "capabilities": [
+          "config-write"
+        ],
         "dataAccess": []
       },
       {
-        "id": "hello:network",
-        "capabilities": ["network-manage"],
+        "id": "admin:network",
+        "capabilities": [
+          "network-manage"
+        ],
         "dataAccess": []
       }
     ]
   },
-  "files": ["dist", "oclif.manifest.json"]
+  "files": [
+    "dist",
+    "oclif.manifest.json"
+  ]
 }

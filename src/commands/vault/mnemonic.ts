@@ -4,7 +4,7 @@ export default class HelloMnemonicCommand extends PluginCommand<{ encrypted: boo
   static override requiresAuth = false;
   static override requiresInit = false;
   static override description = "Example plugin: read mnemonic metadata (capability: mnemonic-read)";
-  protected readonly pluginCommandId = "hello:mnemonic";
+  protected readonly pluginCommandId = "vault:mnemonic";
 
   async execute(_io: CommandIO) {
     // `ctx.mnemonicStore` is gated by the `mnemonic-read` capability (accessing it

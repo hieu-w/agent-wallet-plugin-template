@@ -3,7 +3,7 @@ import { type CommandIO, PluginCommand } from "@metamask/agent-wallet/plugin";
 export default class HelloSubmitCommand extends PluginCommand<{ walletSubmit: "granted" }> {
   static override requiresAuth = true;
   static override description = "Example plugin: obtain the wallet executor (capability: wallet-submit)";
-  protected readonly pluginCommandId = "hello:submit";
+  protected readonly pluginCommandId = "demo:submit";
 
   async execute(io: CommandIO) {
     // `ctx.walletExecutor` is gated by the `wallet-submit` capability: without it

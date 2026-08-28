@@ -211,8 +211,9 @@ src/commands/
 ## Build
 
 ```bash
-yarn
-yarn build
+npm install
+npm run build
+npm run type-check
 ```
 
 `dist/` and `oclif.manifest.json` are generated. Ship both in the package tarball (`files` in `package.json`). Type-check with `"moduleResolution": "Bundler"`.
@@ -220,7 +221,7 @@ yarn build
 ## Install into mm
 
 ```bash
-yarn pack
+npm pack
 mm plugins install file:./mm-plugin-hello-v0.0.1.tgz --accept-permissions
 mm ping
 ```

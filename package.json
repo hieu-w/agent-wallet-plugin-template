@@ -10,7 +10,8 @@
   "scripts": {
     "build": "tsc && oclif manifest",
     "clean": "rimraf dist oclif.manifest.json",
-    "prepack": "yarn build"
+    "prepack": "npm run build",
+    "type-check": "tsc --noEmit"
   },
   "oclif": {
     "bin": "mm",

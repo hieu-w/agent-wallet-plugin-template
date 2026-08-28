@@ -1,6 +1,6 @@
 # Agent Wallet plugin template
 
-Starter for a third-party [`mm`](https://github.com/MetaMask/agentic) CLI plugin. Your package adds first-class `mm` commands (one-shot and REPL). Import only from `@metamask/agent-wallet/plugin`. Declare permissions in `package.json#mm`. Plugin commands do not receive `session` (`cliToken`) or `mnemonicStore` (SRP); those stay host-only.
+Starter for a third-party [`mm`](https://github.com/MetaMask/agentic) CLI plugin. Your package adds first-class `mm` commands (one-shot and REPL). Import only from `@metamask/agent-wallet/plugin`. Declare permissions in `package.json#mm`. Plugin commands do not receive `session` (`cliToken`) or `mnemonicStore` (SRP), and cannot opt into fee-cache warmup (`requiresFees`); those stay host-only.
 
 ## Plugin developer guide
 
@@ -70,15 +70,14 @@ Set these as **static fields**. Do not override the getters or lifecycle methods
 | --- | --- | --- |
 | `requiresAuth` | `true` | Host checks / refreshes the CLI session (`mm login`). |
 | `requiresInit` | `true` | Host requires `mm init` (wallet + trading mode). |
-| `requiresFees` | `false` | Host warms the fee cache (only if auth is also required). |
 | `description` | — | Shown in `mm help`. |
 | `flags` | — | **Your** flags only. |
 
 Every command already has `--format`, `--json`, `--toon`, and `--verbose`. Do not redeclare them.
 
-**Sealed** (constructor throws `PLUGIN_SEALED_OVERRIDE` if you override): `run`, `runLifecycle`, `beforeExecute`, `init`, `prepareForRepl`, `withPluginIsolation`, and the `requiresAuth` / `requiresInit` / `requiresFees` getters.
+**Sealed** (constructor throws `PLUGIN_SEALED_OVERRIDE` if you override): `run`, `runLifecycle`, `beforeExecute`, `init`, `prepareForRepl`, `withPluginIsolation`, and the `requiresAuth` / `requiresInit` getters. Configure auth/init through the statics above, not the getters.
 
-`this.ctx.session` and `this.ctx.mnemonicStore` are **not** available (runtime `PERMISSION_DENIED`). The host already checked login / init. The SRP is host-only; use `walletExecutor` for signing. Use `walletStateManager` for wallet state.
+Host-only (not plugin statics, not on `this.ctx`): `session` / `cliToken`, `mnemonicStore` (SRP), and fee-cache warmup (`requiresFees`). The host already checked login / init. Use `walletExecutor` for signing and `walletStateManager` for wallet state. Reading `session` or `mnemonicStore` throws `PERMISSION_DENIED`.
 
 ### Context (`this.ctx`)
 
@@ -138,7 +137,7 @@ Useful field keys: `flag`, `message`, `required`, `prompt`, `index` (positional 
 
 ### Permissions (`package.json#mm`)
 
-Install-time consent is the real trust boundary. Plugins run **in-process and unsandboxed**. Runtime gates (`wallet-submit`) are defense-in-depth. `session` and the SRP (`mnemonicStore`) are never exposed.
+Install-time consent is the real trust boundary. Plugins run **in-process and unsandboxed**. Runtime gates (`wallet-submit`) are defense-in-depth. `session`, the SRP (`mnemonicStore`), and fee-cache warmup (`requiresFees`) are never exposed.
 
 ```json
 {

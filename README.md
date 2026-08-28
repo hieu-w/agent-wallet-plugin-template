@@ -223,12 +223,11 @@ npm run type-check
 ## Install into mm
 
 ```bash
-npm pack
-mm plugins install file:./mm-plugin-hello-v0.0.1.tgz --accept-permissions
+mm plugins install mm-plugin-hello
 mm ping
 ```
 
-Use interactive consent (omit `--accept-permissions`) when installing by hand.
+Use `--accept-permissions` only in CI. Prefer interactive consent when installing by hand.
 
 ```bash
 mm plugins                  # list

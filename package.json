@@ -1,12 +1,36 @@
 {
   "name": "mm-plugin-hello",
   "version": "0.0.1",
-  "private": true,
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "description": "Example MetaMask Agent Wallet (mm) CLI plugin",
+  "license": "MIT",
+  "author": "hieu-w",
+  "homepage": "https://github.com/hieu-w/agent-wallet-plugin-template#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hieu-w/agent-wallet-plugin-template.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hieu-w/agent-wallet-plugin-template/issues"
+  },
   "keywords": [
-    "oclif-plugin"
+    "oclif-plugin",
+    "metamask",
+    "agent-wallet"
   ],
+  "files": [
+    "dist",
+    "oclif.manifest.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
   "scripts": {
     "build": "tsc && oclif manifest",
     "clean": "rimraf dist oclif.manifest.json",
@@ -18,10 +42,10 @@
     "commands": "./dist/commands"
   },
   "peerDependencies": {
-    "@metamask/agent-wallet": "^6"
+    "@metamask/agent-wallet": "^6.1.0"
   },
   "devDependencies": {
-    "@metamask/agent-wallet": "file:./metamask-agent-wallet-v6.1.5.tgz",
+    "@metamask/agent-wallet": "^6.1.5",
     "oclif": "^4.23.14",
     "typescript": "^5.9.3"
   },
@@ -76,9 +100,5 @@
         "dataAccess": []
       }
     ]
-  },
-  "files": [
-    "dist",
-    "oclif.manifest.json"
-  ]
+  }
 }

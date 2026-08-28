@@ -1,8 +1,8 @@
-import { type CommandIO, InputFieldType, type InputSchema, PluginCommand, schemaToFlags } from "@metamask/agent-wallet/plugin";
+import { type CommandIO, InputFieldType, type InputSchema, PluginCommand, schemaToArgs, schemaToFlags } from "@metamask/agent-wallet/plugin";
 
 // Declarative inputs, resolved the same way host commands do: flags + positionals
-// + interactive prompts. `schemaToFlags` builds the oclif flags; `io.resolveInputs`
-// (provided by the host) reads/validates/prompts them at execute time.
+// + interactive prompts. `schemaToFlags` / `schemaToArgs` build the oclif
+// surface; `io.resolveInputs` reads/validates/prompts them at execute time.
 const inputs = {
   name: {
     type: InputFieldType.Text,
@@ -22,6 +22,7 @@ export default class HelloPingCommand extends PluginCommand<{ message: string }>
   // Base flags (--format/--json/--toon/--verbose) are inherited from the host
   // Command base class; only declare your own here.
   static override flags = schemaToFlags(inputs);
+  static override args = schemaToArgs(inputs);
   protected readonly pluginCommandId = "ping";
 
   async execute(io: CommandIO) {

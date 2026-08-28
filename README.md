@@ -15,6 +15,7 @@ import {
   InputFieldType,
   type InputSchema,
   PluginCommand,
+  schemaToArgs,
   schemaToFlags,
 } from "@metamask/agent-wallet/plugin";
 ```
@@ -26,7 +27,7 @@ Published surface:
 | `PluginCommand` | Base class. Implement `execute` plus `pluginCommandId`. |
 | `PluginCommandContext` | Typed view of `this.ctx` (services the host exposes). |
 | `CommandIO` | How you talk to the user / stdout (`emit`, `yield`, `resolveInputs`, …). |
-| `schemaToFlags` + `InputFieldType` | Declare inputs once; host builds flags and prompts. |
+| `schemaToFlags` / `schemaToArgs` + `InputFieldType` | Declare inputs once; host builds flags, positionals, and prompts. |
 | `CommandError` / `ok` / `err` | Fail a command with a code + hint. |
 | `PluginManifest` / `definePluginManifest` / `CAPABILITIES` / `DATA_ACCESS` | Manifest types and constants. |
 
@@ -45,6 +46,7 @@ export default class PingCommand extends PluginCommand<{ message: string }> {
   static override requiresInit = false;
   static override description = "Example plugin: greet without auth";
   static override flags = schemaToFlags(inputs);
+  static override args = schemaToArgs(inputs); // fields with `index` become `mm ping Alice`
   protected readonly pluginCommandId = "ping";
 
   async execute(io: CommandIO) {
@@ -114,7 +116,7 @@ Same `CommandIO` host commands use. Headless (`mm ping --json`) cannot prompt; R
 
 ### Inputs
 
-Declare a schema once. `schemaToFlags` builds oclif flags; `io.resolveInputs` fills values.
+Declare a schema once. `schemaToFlags` builds flags; `schemaToArgs` turns fields with `index` into oclif positionals (`mm ping Alice` and `--name Alice` both work). `io.resolveInputs` fills values.
 
 ```ts
 const inputs = {
@@ -124,14 +126,14 @@ const inputs = {
     message: "Name to greet",
     required: false,
     prompt: false,
-    index: 0, // also accepted as a positional
+    index: 0, // `mm ping Alice` — requires `static args = schemaToArgs(inputs)`
   },
 } satisfies InputSchema;
 ```
 
 Field types: `Text`, `Password`, `Select`, `Confirm`, `Boolean`.
 
-Useful field keys: `flag`, `message`, `required`, `prompt`, `index` (positional), `env`, `options` (select), `validate`, `when` (conditional).
+Useful field keys: `flag`, `message`, `required`, `prompt`, `index` (positional via `schemaToArgs`), `env`, `options` (select), `validate`, `when` (conditional).
 
 ### Permissions (`package.json#mm`)
 
@@ -201,7 +203,7 @@ src/commands/
 
 | Command | Capability | Notes |
 | --- | --- | --- |
-| `ping` | none | Flat id. No auth / init. Demonstrates `schemaToFlags` + `io.resolveInputs`. |
+| `ping` | none | Flat id. No auth / init. `mm ping Alice` or `--name Alice`. |
 | `demo:balance` | `wallet-read` | Topic + sub. Reads the active address and a recent tx count. |
 | `demo:submit` | `wallet-submit` | Same `demo` topic, different sub. Obtains `ctx.walletExecutor`. |
 | `vault:mnemonic` | `mnemonic-read` | Another topic. Reads mnemonic metadata only, never the secret. |

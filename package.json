@@ -1,0 +1,62 @@
+{
+  "name": "mm-plugin-hello",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Example MetaMask Agent Wallet (mm) CLI plugin",
+  "keywords": ["oclif-plugin"],
+  "scripts": {
+    "build": "tsc && oclif manifest",
+    "clean": "rimraf dist oclif.manifest.json",
+    "prepack": "yarn build"
+  },
+  "oclif": {
+    "bin": "mm",
+    "commands": "./dist/commands"
+  },
+  "peerDependencies": {
+    "@metamask/agent-wallet": "^6"
+  },
+  "devDependencies": {
+    "oclif": "^4.23.14",
+    "typescript": "^5.9.3"
+  },
+  "mm": {
+    "schemaVersion": 1,
+    "minCliVersion": "^6.1.0",
+    "capabilities": [],
+    "commands": [
+      {
+        "id": "hello:ping",
+        "capabilities": [],
+        "dataAccess": []
+      },
+      {
+        "id": "hello:balance",
+        "capabilities": ["wallet-read"],
+        "dataAccess": ["balances", "accounts"]
+      },
+      {
+        "id": "hello:submit",
+        "capabilities": ["wallet-submit"],
+        "dataAccess": []
+      },
+      {
+        "id": "hello:mnemonic",
+        "capabilities": ["mnemonic-read"],
+        "dataAccess": ["mnemonic"]
+      },
+      {
+        "id": "hello:config",
+        "capabilities": ["config-write"],
+        "dataAccess": []
+      },
+      {
+        "id": "hello:network",
+        "capabilities": ["network-manage"],
+        "dataAccess": []
+      }
+    ]
+  },
+  "files": ["dist", "oclif.manifest.json"]
+}

@@ -15,6 +15,7 @@ import {
   InputFieldType,
   type InputSchema,
   PluginCommand,
+  type PublicClient,
   schemaToArgs,
   schemaToFlags,
 } from "@metamask/agent-wallet/plugin";
@@ -26,6 +27,7 @@ Published surface:
 | --- | --- |
 | `PluginCommand` | Base class. Implement `execute` plus `pluginCommandId`. |
 | `PluginCommandContext` | Typed view of `this.ctx` (no `session` / `cliToken` / `mnemonicStore`). |
+| `PublicClient` | Viem public client type for annotating `ctx.publicClient(chainId)` results. |
 | `CommandIO` | How you talk to the user / stdout (`emit`, `yield`, `resolveInputs`, …). |
 | `schemaToFlags` / `schemaToArgs` + `InputFieldType` | Declare inputs once; host builds flags, positionals, and prompts. |
 | `CommandError` / `ok` / `err` | Fail a command with a code + hint. |
@@ -92,6 +94,7 @@ Curated services. Capability gates apply at runtime for the sensitive ones.
 | `networkRegistry` | `wallet-read` | Supported networks cache. |
 | `feesService` | `wallet-read` | Fee quotes / cache. |
 | `swapQuoteStore` | `wallet-read` | Persisted swap quotes. |
+| `publicClient(chainId)` | `wallet-read` | Authenticated, per-chain viem public client for raw EVM reads (`getBalance`, `readContract`, `multicall`, …). |
 | `authService` | — | Auth helpers the host already ran (`requiresAuth`). Do not use this to read `cliToken`. |
 | `walletExecutor(io, pluginCommandId)` | `wallet-submit` | Sign / submit via MetaMask policy. Still MFA-gated. Missing capability → `PERMISSION_DENIED`. |
 | `logger` | — | Structured logs. Never log secrets. |
@@ -169,13 +172,22 @@ Capabilities:
 
 | Capability | Grants |
 | --- | --- |
-| `wallet-read` | Read services (wallets, accounts, prices, tokens, fees, quotes). |
+| `wallet-read` | Read services (wallets, accounts, prices, tokens, fees, quotes) and `ctx.publicClient(chainId)` for raw EVM RPC reads. |
 | `wallet-submit` | `ctx.walletExecutor()` — sign/submit, still policy-gated. |
 | `mnemonic-read` | Reserved. SRP / `mnemonicStore` are host-only. |
 | `config-write` | Reserved. |
 | `network-manage` | Reserved. |
 
 A command with no capabilities (this template’s `ping`) needs no auth and no wallet access.
+
+Raw EVM reads with `wallet-read`:
+
+```ts
+const client: PublicClient = this.ctx.publicClient(1); // mainnet
+const balanceWei = await client.getBalance({ address: "0x…" });
+```
+
+The host reuses the same authenticated Infura gateway as balance/swap/earn (session `projectId` baked into the URL). Without `wallet-read`, `ctx.publicClient(...)` throws `PERMISSION_DENIED`.
 
 Also required in `package.json`:
 
@@ -204,7 +216,7 @@ src/commands/
 | Command | Capability | Notes |
 | --- | --- | --- |
 | `ping` | none | Flat id. No auth / init. `mm ping Alice` or `--name Alice`. |
-| `demo:balance` | `wallet-read` | Topic + sub. Reads the active address and a recent tx count. |
+| `demo:balance` | `wallet-read` | Topic + sub. Reads the active address, native balance, and tx count via `ctx.publicClient(1)`. |
 | `demo:submit` | `wallet-submit` | Same `demo` topic, different sub. Obtains `ctx.walletExecutor`. |
 | `vault:mnemonic` | `mnemonic-read` | Reserved; SRP is host-only. Shows how to declare the capability. |
 | `admin:config` | `config-write` | Reserved; shows how to declare the capability. |

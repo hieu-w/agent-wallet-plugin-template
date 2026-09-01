@@ -78,18 +78,14 @@
       },
       {
         "id": "vault:mnemonic",
-        "capabilities": [
-          "mnemonic-read"
-        ],
+        "capabilities": [],
         "dataAccess": [
           "mnemonic"
         ]
       },
       {
         "id": "admin:config",
-        "capabilities": [
-          "config-write"
-        ],
+        "capabilities": [],
         "dataAccess": []
       },
       {
